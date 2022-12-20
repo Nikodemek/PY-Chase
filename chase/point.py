@@ -54,3 +54,6 @@ class Point:
 
     def __repr__(self):
         return f"({self.x:.3f}, {self.y:.3f})"
+
+
+

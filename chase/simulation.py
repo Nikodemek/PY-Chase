@@ -1,4 +1,14 @@
-from model.animals import Sheep, Wolf, Flock
+from enum import Enum
+
+from chase.animals import Sheep, Wolf, Flock
+
+
+class LogLevel(Enum):
+    DEBUG = 10,
+    INFO = 20,
+    WARNING = 30,
+    ERROR = 40,
+    CRITICAL = 50
 
 
 class SimulationOptions:
@@ -9,15 +19,17 @@ class SimulationOptions:
             flock_size: int = 15,
             init_pos_limit: float = 10.0,
             sheep_move_dist: float = 0.5,
-            wolfe_move_dist: float = 1.0,
-            wait_after_round: bool = False
+            wolf_move_dist: float = 1.0,
+            wait_after_round: bool = False,
+            log_level: LogLevel = LogLevel.INFO
     ):
         self.max_rounds_number: int = max_rounds_number
         self.flock_size: int = flock_size
         self.init_pos_limit: float = init_pos_limit
         self.sheep_move_dist: float = sheep_move_dist
-        self.wolfe_move_dist: float = wolfe_move_dist
+        self.wolfe_move_dist: float = wolf_move_dist
         self.wait_after_round: bool = wait_after_round
+        self.log_level: LogLevel = log_level
 
 
 class Simulation:

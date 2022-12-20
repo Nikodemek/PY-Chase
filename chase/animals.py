@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import Enum
 import random
-from model.point import Point
+from point import Point
 
 
 class Direction(Enum):
