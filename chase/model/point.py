@@ -42,14 +42,15 @@ class Point:
 
     def calculate_vector(self, other: Point) -> Point:
         diff: Point = other - self
-        return self / max(abs(diff.x), abs(diff.y))
+        max_of_diff: float = max(abs(diff.x), abs(diff.y))
+        return diff / max_of_diff
 
     @staticmethod
-    def random(max_value: float) -> Point:
-        new_x = random.uniform(-max_value, max_value)
-        new_y = random.uniform(-max_value, max_value)
+    def random(max_value: float, min_value: float = None) -> Point:
+        min_value = min_value or -max_value
+        new_x = random.uniform(min_value, max_value)
+        new_y = random.uniform(min_value, max_value)
         return Point(new_x, new_y)
 
     def __repr__(self):
-        return f"({self.x:.2f}, {self.y:.2f})"
-
+        return f"({self.x:.3f}, {self.y:.3f})"
