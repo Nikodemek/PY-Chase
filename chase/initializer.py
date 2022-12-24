@@ -1,4 +1,5 @@
-from chase.simulation import LogLevel, SimulationOptions
+from scrivener import Scrivener
+from simulation import LogLevel, SimulationOptions
 from os import path, mkdir
 import argparse
 import configparser
@@ -17,7 +18,6 @@ class Arguments:
     ):
         self.config_file: str = config_file
         self.directory: str = directory
-        self.log_level: LogLevel = log_level
         self.number_of_rounds: int = number_of_rounds
         self.number_of_sheep: int = number_of_sheep
         self.wait_after_round: bool = wait_after_round
@@ -30,6 +30,11 @@ class Arguments:
 
         self.read_config_if_exists()
         self.validate_config()
+
+        self.scrivener: Scrivener = Scrivener(
+            base_directory=self.directory,
+            log_level=log_level
+        )
 
     def validate_arguments(self):
         if self.number_of_rounds < 1:
@@ -51,9 +56,12 @@ class Arguments:
         parser = configparser.SafeConfigParser()
         parser.read(self.config_file)
 
-        self.init_pos_limit = parser.getfloat('Terrain', 'InitPosLimit')
-        self.sheep_move_dist = parser.getfloat('Movement', 'SheepMoveDist')
-        self.wolf_move_dist = parser.getfloat('Movement', 'WolfMoveDist')
+        try:
+            self.init_pos_limit = parser.getfloat('Terrain', 'InitPosLimit')
+            self.sheep_move_dist = parser.getfloat('Movement', 'SheepMoveDist')
+            self.wolf_move_dist = parser.getfloat('Movement', 'WolfMoveDist')
+        except Exception as e:
+            raise ValueError("Error reading values of config File!", e)
 
     def validate_config(self):
         if self.init_pos_limit < 0:
@@ -73,7 +81,7 @@ class Arguments:
             sheep_move_dist=self.sheep_move_dist,
             wolf_move_dist=self.wolf_move_dist,
             wait_after_round=self.wait_after_round,
-            log_level=self.log_level
+            scrivener=self.scrivener
         )
 
 
@@ -122,7 +130,7 @@ def parse_arguments() -> SimulationOptions:
     args, leftovers = parser.parse_known_args()
 
     arguments = Arguments(
-        config_file=args.config_file or "",
+        config_file=args.config_file,
         directory=args.directory,
         log_level=args.log_level,
         number_of_rounds=args.number_of_rounds,
@@ -131,4 +139,3 @@ def parse_arguments() -> SimulationOptions:
     )
 
     return arguments.get_simulation_options()
-

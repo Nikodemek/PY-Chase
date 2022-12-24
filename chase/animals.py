@@ -90,7 +90,7 @@ class Wolf(Animal):
         length: int = len(remaining_sheep)
 
         if length < 1:
-            raise AttributeError(f'Flock length is {length} (less than 1)!')
+            raise ValueError(f'Flock length is {length} (less than 1)!')
 
         closest_sheep: Sheep = remaining_sheep[0]
         closest_magnitude: float = self.position.magnitude(closest_sheep.position)

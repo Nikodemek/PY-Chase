@@ -1,6 +1,7 @@
 from __future__ import annotations
 from math import sqrt
 import random
+import inspect
 
 
 class Point:
@@ -55,5 +56,8 @@ class Point:
     def __repr__(self):
         return f"({self.x:.3f}, {self.y:.3f})"
 
-
-
+    def __getattribute__(self, item):
+        returned = object.__getattribute__(self, item)
+        if inspect.isfunction(returned) or inspect.ismethod(returned):
+            print('called ', returned.__name__, returned)
+        return returned

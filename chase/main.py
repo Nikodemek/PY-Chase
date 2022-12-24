@@ -1,13 +1,10 @@
-from chase.initializer import parse_arguments
-from simulation import Simulation, SimulationOptions, LogLevel
+from initializer import parse_arguments
+from simulation import Simulation, SimulationOptions
 
 
 def main():
 
     options: SimulationOptions = parse_arguments()
-
-    print(vars(options))
-    return
 
     simulation: Simulation = Simulation(options)
 

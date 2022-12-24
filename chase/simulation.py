@@ -1,14 +1,20 @@
 from enum import Enum
-
-from chase.animals import Sheep, Wolf, Flock
+from animals import Sheep, Wolf, Flock
+from scrivener import Scrivener
 
 
 class LogLevel(Enum):
-    DEBUG = 10,
-    INFO = 20,
-    WARNING = 30,
-    ERROR = 40,
+    DEBUG = 10
+    INFO = 20
+    WARNING = 30
+    ERROR = 40
     CRITICAL = 50
+
+
+class SimulationState(Enum):
+    INIT = 0
+    RUNNING = 1
+    END = 2
 
 
 class SimulationOptions:
@@ -21,7 +27,7 @@ class SimulationOptions:
             sheep_move_dist: float = 0.5,
             wolf_move_dist: float = 1.0,
             wait_after_round: bool = False,
-            log_level: LogLevel = LogLevel.INFO
+            scrivener: Scrivener = None
     ):
         self.max_rounds_number: int = max_rounds_number
         self.flock_size: int = flock_size
@@ -29,7 +35,7 @@ class SimulationOptions:
         self.sheep_move_dist: float = sheep_move_dist
         self.wolfe_move_dist: float = wolf_move_dist
         self.wait_after_round: bool = wait_after_round
-        self.log_level: LogLevel = log_level
+        self.scrivener: Scrivener = scrivener
 
 
 class Simulation:
@@ -46,35 +52,40 @@ class Simulation:
         ]
         self.flock: Flock = Flock(sheep)
         self.wolf: Wolf = Wolf(options.wolfe_move_dist)
-        self.round_number: int = 0
+        self.round_number: int = 1
         self.max_rounds_number: int = options.max_rounds_number
+        self.wait_after_round: bool = options.wait_after_round
+
+        self.closest_sheep: Sheep = None
+        self.reached: bool = False
+
+        self.scrivener: Scrivener = options.scrivener
+        self.simulation_state = SimulationState.INIT
 
     def simulate(self):
+        self.simulation_state = SimulationState.INIT
 
-        self.log()
-        while (self.round_number < self.max_rounds_number
+        self.scrivener.console_log(self)
+        while (self.round_number <= self.max_rounds_number
                and not self.flock.are_all_eaten()):
-
-            closest_sheep: Sheep = self.wolf.find_closest_sheep(self.flock.remaining)
-            reached: bool = self.wolf.move(closest_sheep.position)
-
-            if reached:
-                self.flock.eliminate_sheep(closest_sheep)
+            self.simulation_state = SimulationState.RUNNING
 
             self.flock.move()
 
-            self.log()
+            self.closest_sheep = self.wolf.find_closest_sheep(self.flock.remaining)
+            self.reached: bool = self.wolf.move(self.closest_sheep.position)
+
+            if self.reached:
+                self.flock.eliminate_sheep(self.closest_sheep)
+
+            self.scrivener.console_log(self)
+            self.scrivener.add_pos_entry(self.round_number, self.wolf.position, self.flock.all)
+            self.scrivener.add_alive_entry(self.round_number, len(self.flock.remaining))
             self.round_number += 1
+            if self.wait_after_round:
+                input("Press Enter to continue...")
 
-    def log(self) -> None:
-        message: str = \
-            f"""
-Round_{self.round_number}: Initial = {len(self.flock.all)}, Remaining = {len(self.flock.remaining)}
-    Wolf: {self.wolf.position}
-    Sheep:
-"""
-        for sheep in self.flock.remaining:
-            message += f"\t\t{sheep}\n"
+        self.simulation_state = SimulationState.END
 
-        print(message)
-
+        self.scrivener.console_log(self)
+        self.scrivener.dispose()
