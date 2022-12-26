@@ -50,7 +50,7 @@ class Sheep(Animal):
     def move(self, direction: Direction = None):
         direction = direction or Direction.random()
         self.position += Animal.dir_to_point[direction] * self.move_dist
-        self.log.debug(f"Calculated new sheep position: {self.position}")
+        self.log.debug(f"Moved Sheep_{self.number} {direction.name}. New position: {self.position}")
 
     def __repr__(self):
         state: str = self.position if self.alive else "eaten"

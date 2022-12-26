@@ -49,7 +49,7 @@ class Simulation:
         
         self.flock: Flock = Flock(sheep)
         self.wolf: Wolf = Wolf(options.wolfe_move_dist)
-        self.round_number: int = 1
+        self.round_number: int = 0
         self.max_rounds_number: int = options.max_rounds_number
         self.wait_after_round: bool = options.wait_after_round
 
@@ -69,17 +69,23 @@ class Simulation:
         self.simulation_state = SimulationState.INIT
         self.log.debug("Setting simulation_state to INIT")
 
+        scriv.add_alive_entry(self.round_number, len(self.flock.remaining))
+        self.log.debug("Adding initial alive sheep entry")
+
         self.console_log()
         self.log.debug("Evaluating if the Simulation should be continued")
-        while self.round_number <= self.max_rounds_number and not self.flock.are_all_eaten():
+        while self.round_number < self.max_rounds_number and not self.flock.are_all_eaten():
+            self.round_number += 1
+            self.log.debug("Increasing round_number")
+
             self.log.debug(f"Continuing the Simulation. Round number {self.round_number}")
 
             if self.simulation_state != SimulationState.RUNNING:
                 self.simulation_state = SimulationState.RUNNING
                 self.log.debug("Setting simulation_state to RUNNING")
 
+            self.log.info("Moving all Sheep")
             self.flock.move()
-            self.log.info("Moving all SHeep")
 
             self.closest_sheep = self.wolf.find_closest_sheep(self.flock.remaining)
             self.log.info(f"Finding closest Sheep. Found {self.closest_sheep}")
@@ -99,9 +105,6 @@ class Simulation:
 
             scriv.add_alive_entry(self.round_number, len(self.flock.remaining))
             self.log.debug("Adding alive sheep entry")
-
-            self.round_number += 1
-            self.log.debug("Increasing round_number")
 
             if self.wait_after_round:
                 self.log.debug("Waiting for user's input")
