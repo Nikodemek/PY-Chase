@@ -57,19 +57,17 @@ class Simulation:
         self.reached: bool = False
 
         self.scrivener: Scrivener = options.scrivener
-
         self.simulation_state: SimulationState = SimulationState.INIT
 
         self.log.info("Instantiated a Simulation object")
 
     def simulate(self):
-        scriv: Scrivener = self.scrivener
         self.log.info("Starting the Simulation")
 
         self.simulation_state = SimulationState.INIT
         self.log.debug("Setting simulation_state to INIT")
 
-        scriv.add_alive_entry(self.round_number, len(self.flock.remaining))
+        self.scrivener.add_alive_entry(self.round_number, len(self.flock.remaining))
         self.log.debug("Adding initial alive sheep entry")
 
         self.console_log()
@@ -90,8 +88,8 @@ class Simulation:
             self.closest_sheep = self.wolf.find_closest_sheep(self.flock.remaining)
             self.log.info(f"Finding closest Sheep. Found {self.closest_sheep}")
 
-            self.reached: bool = self.wolf.move(self.closest_sheep.position)
-            self.log.info("Moving the Wolf")
+            self.reached: bool = self.wolf.attack(self.closest_sheep)
+            self.log.info(f"Wolf ({self.wolf}){' successfully' if self.reached else ''} attacked a sheep ({self.closest_sheep})")
 
             if self.reached:
                 self.flock.eliminate_sheep(self.closest_sheep)
@@ -100,10 +98,10 @@ class Simulation:
             self.console_log()
             self.log.debug("Logging Simulation state to console")
 
-            scriv.add_pos_entry(self.round_number, self.wolf.position, self.flock.all)
+            self.scrivener.add_pos_entry(self.round_number, self.wolf.position, self.flock.all)
             self.log.debug("Adding animals position entry")
 
-            scriv.add_alive_entry(self.round_number, len(self.flock.remaining))
+            self.scrivener.add_alive_entry(self.round_number, len(self.flock.remaining))
             self.log.debug("Adding alive sheep entry")
 
             if self.wait_after_round:
@@ -119,7 +117,7 @@ class Simulation:
         self.log.debug("Logging Simulation end state to console")
 
         self.log.debug("Disposing of the Scrivener")
-        scriv.dispose()
+        self.scrivener.dispose()
 
     def console_log(self):
         message: str
@@ -134,7 +132,7 @@ class Simulation:
                 for sheep in remaining:
                     message += f'\t\t{sheep}\n'
             case SimulationState.RUNNING:
-                message = f'Round_{self.round_number}: Initial = {len(initial)}, Remaining = {len(remaining)}\n' + \
+                message = f'Round {self.round_number}: Initial = {len(initial)}, Remaining = {len(remaining)}\n' + \
                     f'\tWolf: {self.wolf.position}\n' + \
                     f'\tSheep:\n'
                 for sheep in remaining:

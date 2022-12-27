@@ -29,8 +29,8 @@ class Arguments:
         self.init_pos_limit: float = 10.0
         self.sheep_move_dist: float = 0.5
         self.wolf_move_dist: float = 1.0
-
         self.read_config_if_exists()
+
         self.validate_config()
 
         self.scrivener: Scrivener = Scrivener(
@@ -104,7 +104,7 @@ def parse_arguments() -> SimulationOptions:
                         default=".",
                         dest="directory",
                         metavar="DIR",
-                        help="Path to directory where files should be stored")
+                        help="Name to directory where files should be stored")
     parser.add_argument("-l", "--log",
                         type=str,
                         choices=[level.name for level in LogLevel],
